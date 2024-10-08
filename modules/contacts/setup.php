@@ -50,8 +50,6 @@ add_handler('export_contact', 'load_contacts', true, 'contacts', 'load_user_data
 add_handler('export_contact', 'process_export_contacts', true, 'contacts', 'load_contacts', 'after');
 add_handler('settings', 'process_contact_auto_collect_setting', true, 'contacts', 'date', 'after');
 
-add_output('compose', 'load_contact_mails', true, 'contacts', 'compose_form_end', 'after');
-
 add_handler('settings', 'process_enable_warn_contacts_cc_not_exist_in_list_contact', true, 'contacts', 'save_user_settings', 'before');
 add_output('settings', 'enable_warn_contacts_cc_not_exist_in_list_contact', true, 'contacts', 'start_general_settings', 'after');
 
