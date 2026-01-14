@@ -21,6 +21,7 @@ class Hm_Output_imap_custom_controls extends Hm_Output_Module {
             $filter = $this->get('list_filter');
             $sort = $this->get('list_sort');
             $keyword = $this->get('list_keyword');
+            $screen_emails = $this->get('screen_emails');
             $opts = array('all' => $this->trans('All'), 'unseen' => $this->trans('Unread'),
                 'seen' => $this->trans('Read'), 'flagged' => $this->trans('Flagged'),
                 'unflagged' => $this->trans('Unflagged'), 'answered' => $this->trans('Answered'),
@@ -41,6 +42,9 @@ class Hm_Output_imap_custom_controls extends Hm_Output_Module {
             $custom .= '<input type="hidden" name="list_page" value="'.$this->html_safe($this->get('list_page')).'" />';
             $custom .= '<input type="search" placeholder="'.$this->trans('Search').
                 '" class="imap_keyword form-control form-control-sm" name="keyword" value="'.$this->html_safe($keyword).'" />';
+            if ($screen_emails) {
+                $custom .= '<input type="hidden" value="1" name="screen_emails"/>';
+            }
             $custom .= '<select name="sort" class="imap_sort form-control form-control-sm">';
             foreach ($sorts as $name => $val) {
                 $custom .= '<option ';
@@ -137,18 +141,20 @@ class Hm_Output_filter_message_body extends Hm_Output_Module {
                 }
 
                 $msgText = sanitize_email_html($msgText);
-                $txt .= format_msg_html($msgText, $allowed);
+                $txt .= '<div class="msg_html_part">' . format_msg_html($msgText, $allowed) . '</div>';
             }
             elseif (isset($struct['type']) && mb_strtolower($struct['type']) == 'image') {
                 $txt .= format_msg_image($this->get('msg_text'), mb_strtolower($struct['subtype']));
             }
             else {
+                $plainContent = '';
                 if ($this->get('imap_msg_part') === "0") {
-                    $txt .= format_msg_text($this->get('msg_text'), $this, false);
+                    $plainContent = format_msg_text($this->get('msg_text'), $this, false);
                 }
                 else {
-                    $txt .= format_msg_text($this->get('msg_text'), $this);
+                    $plainContent = format_msg_text($this->get('msg_text'), $this);
                 }
+                $txt .= '<div class="msg_plain_part">' . $plainContent . '</div>';
             }
         }
         $txt .= '</div>';
@@ -897,7 +903,7 @@ class Hm_Output_filter_imap_folders extends Hm_Output_Module {
                 if (!$this->get('hide_folder_icons')) {
                     $res .= '<i class="bi bi-folder me-2"></i>';
                 }
-                $res .= $this->html_safe($folder).'</a></li>';
+                $res .= $this->html_safe($folder).'</a><span class="unread_count unread_imap_server_'.$id.'"></span></li>';
             }
         }
         if ($res) {
